@@ -10,6 +10,10 @@ module VagrantChefnode
     end
 
     def call(env)
+      require 'chef'
+      require 'chef/config'
+      require 'chef/knife'
+
       chef_server_url = ::Chef::Config[:chef_server_url]
       if chef_server_url == "" then
         @app.call(env)
@@ -24,9 +28,6 @@ module VagrantChefnode
         return
       end
 
-      require 'chef'
-      require 'chef/config'
-      require 'chef/knife'
       config = File.expand_path("../../../../../../.chef/knife.rb", File.dirname(__FILE__))
       ::Chef::Config.from_file(config)
 
