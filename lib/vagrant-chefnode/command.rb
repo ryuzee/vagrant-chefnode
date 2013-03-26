@@ -13,14 +13,18 @@ module VagrantChefnode
       require 'chef'
       require 'chef/config'
       require 'chef/knife'
-      config = File.expand_path("../../../../../../.chef/knife.rb", File.dirname(__FILE__))
-      ::Chef::Config.from_file(config)
+      knife_config = File.expand_path("../../../../../../.chef/knife.rb", File.dirname(__FILE__))
+      ::Chef::Config.from_file(knife_config)
 
       chef_server_url = ::Chef::Config[:chef_server_url]
       defined_chef_server_url = ""
-      env[:machine].config.vm.provision :chef_client do |chef|
-        defined_chef_server_url = chef.chef_server_url
+
+      provisioners = env[:machine].config.vm.provisioners.map do |provisioner|
+        if provisioner.name == :chef_client then
+          defined_chef_server_url = provisioner.config.chef_server_url
+        end
       end
+
       if chef_server_url == "" || defined_chef_server_url == "" || chef_server_url != defined_chef_server_url then
         @app.call(env)
         return
