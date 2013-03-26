@@ -13,9 +13,15 @@ module VagrantChefnode
       require 'chef'
       require 'chef/config'
       require 'chef/knife'
+      config = File.expand_path("../../../../../../.chef/knife.rb", File.dirname(__FILE__))
+      ::Chef::Config.from_file(config)
 
       chef_server_url = ::Chef::Config[:chef_server_url]
-      if chef_server_url == "" then
+      defined_chef_server_url = ""
+      env[:machine].config.vm.provision :chef_client do |chef|
+        defined_chef_server_url = chef.chef_server_url
+      end
+      if chef_server_url == "" || defined_chef_server_url == "" || chef_server_url != defined_chef_server_url then
         @app.call(env)
         return
       end
@@ -27,9 +33,6 @@ module VagrantChefnode
         @app.call(env)
         return
       end
-
-      config = File.expand_path("../../../../../../.chef/knife.rb", File.dirname(__FILE__))
-      ::Chef::Config.from_file(config)
 
       ["client", "node"].each do |elm|
         env[:ui].info "Attempting to remove #{elm} '#{node}' from chef server."
