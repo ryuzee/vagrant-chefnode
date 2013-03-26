@@ -10,6 +10,12 @@ module VagrantChefnode
     end
 
     def call(env)
+      chef_server_url = ::Chef::Config[:chef_server_url]
+      if chef_server_url == "" then
+        @app.call(env)
+        return
+      end
+
       node = env[:machine].config.vm.hostname
       message = "Are you sure you want to remove node and client named '#{node}' from chef server ? [y/N] "
       choice = env[:ui].ask(message)
@@ -27,7 +33,7 @@ module VagrantChefnode
       ["client", "node"].each do |elm|
         env[:ui].info "Attempting to remove #{elm} '#{node}' from chef server."
         begin
-          ::Chef::REST.new(::Chef::Config[:chef_server_url]).delete_rest("#{elm}s/#{node}")
+          ::Chef::REST.new(chef_server_url).delete_rest("#{elm}s/#{node}")
         rescue Net::HTTPServerException => e
           if e.message == '404 "Not Found"'
             env[:ui].info "#{elm} '#{node}' not found."
