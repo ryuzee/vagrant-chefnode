@@ -10,7 +10,8 @@ execute:
 
 ## Usage
 
-TODO: Write usage instructions here
+You should set up "knife" command.
+knife.rb has to be placed on $HOME/.chef/ .
 
 ## Contributing
 
