@@ -19,9 +19,11 @@ module VagrantChefnode
       chef_server_url = ::Chef::Config[:chef_server_url]
       defined_chef_server_url = ""
 
+      node = ""
       provisioners = env[:machine].config.vm.provisioners.map do |provisioner|
         if provisioner.name == :chef_client then
           defined_chef_server_url = provisioner.config.chef_server_url
+          node = provisioner.config.node_name || env[:machine].config.vm.hostname
         end
       end
 
@@ -30,7 +32,6 @@ module VagrantChefnode
         return
       end
 
-      node = env[:machine].config.vm.hostname
       message = "Are you sure you want to remove node and client named '#{node}' from chef server ? [y/N] "
       choice = env[:ui].ask(message)
       if choice.upcase != "Y" then
